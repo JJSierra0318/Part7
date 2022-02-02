@@ -7,13 +7,16 @@ import NewBlog from './components/NewBlog'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import storage from './utils/storage'
+import { useDispatch, useSelector } from 'react-redux'
+import { setNotification } from './reducers/notificationReducer'
 
 const App = () => {
+  const dispatch = useDispatch()
+  const notification = useSelector(state => state.notification)
   const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState(null)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [notification, setNotification] = useState(null)
 
   const blogFormRef = React.createRef()
 
@@ -28,15 +31,6 @@ const App = () => {
     setUser(user)
   }, [])
 
-  const notifyWith = (message, type='success') => {
-    setNotification({
-      message, type
-    })
-    setTimeout(() => {
-      setNotification(null)
-    }, 5000)
-  }
-
   const handleLogin = async (event) => {
     event.preventDefault()
     try {
@@ -47,10 +41,10 @@ const App = () => {
       setUsername('')
       setPassword('')
       setUser(user)
-      notifyWith(`${user.name} welcome back!`)
+      dispatch(setNotification(`${user.name} welcome back!`, 'success', 5))
       storage.saveUser(user)
     } catch(exception) {
-      notifyWith('wrong username/password', 'error')
+      dispatch(setNotification('wrong username/password', 'error', 5))
     }
   }
 
@@ -59,7 +53,7 @@ const App = () => {
       const newBlog = await blogService.create(blog)
       blogFormRef.current.toggleVisibility()
       setBlogs(blogs.concat(newBlog))
-      notifyWith(`a new blog '${newBlog.title}' by ${newBlog.author} added!`)
+      dispatch(setNotification(`a new blog '${newBlog.title}' by ${newBlog.author} added!`, 'success', 5))
     } catch(exception) {
       console.log(exception)
     }
