@@ -36,6 +36,15 @@ router.put('/:id', async (request, response) => {
   response.json(updatedBlog.toJSON())
 })
 
+router.post('/:id/comments', async (request, response) => {
+  const blog = await Blog.findById(request.params.id)
+
+  blog.comments = blog.comments.concat(request.body.comment)
+  await blog.save()
+
+  response.json(blog)
+})
+
 router.post('/', async (request, response) => {
   const blog = new Blog(request.body)
 
