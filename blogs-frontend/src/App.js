@@ -4,6 +4,7 @@ import Notification from './components/Notification'
 import Togglable from './components/Togglable'
 import NewBlog from './components/NewBlog'
 import Menu from './components/Menu'
+import BLogList from './components/BlogList'
 import UserList from './components/UserList'
 import User from './components/User'
 
@@ -11,7 +12,7 @@ import loginService from './services/login'
 import storage from './utils/storage'
 import { useDispatch, useSelector } from 'react-redux'
 import { setNotification } from './reducers/notificationReducer'
-import { initializeBlogs, likeBlog, newBlog, removeBlog } from './reducers/blogReducer'
+import { initializeBlogs, newBlog } from './reducers/blogReducer'
 import { userLogin, userLogout } from './reducers/userReducer'
 import { Route, Switch } from 'react-router-dom'
 import { initializeUsers } from './reducers/usersReducer'
@@ -19,7 +20,6 @@ import { initializeUsers } from './reducers/usersReducer'
 const App = () => {
   const dispatch = useDispatch()
   const notification = useSelector(state => state.notification)
-  const blogs = useSelector(state => state.blogs)
   const user = useSelector(state => state.user)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -63,19 +63,6 @@ const App = () => {
     }
   }
 
-  const handleLike = async (id) => {
-    const blogToLike = blogs.find(b => b.id === id)
-    dispatch(likeBlog(blogToLike))
-  }
-
-  const handleRemove = async (id) => {
-    const blogToRemove = blogs.find(b => b.id === id)
-    const ok = window.confirm(`Remove blog ${blogToRemove.title} by ${blogToRemove.author}`)
-    if (ok) {
-      dispatch(removeBlog(blogToRemove))
-    }
-  }
-
   const handleLogout = () => {
     dispatch(userLogout())
     storage.logoutUser()
@@ -112,8 +99,6 @@ const App = () => {
     )
   }
 
-  const byLikes = (b1, b2) => b2.likes - b1.likes
-
   return (
     <div>
       <Menu user={user} handleLogout={handleLogout}/>
@@ -126,21 +111,15 @@ const App = () => {
         <Route path='/users'>
           <UserList />
         </Route>
+        <Route path='/blogs/:id'>
+          <Blog />
+        </Route>
         <Route path='/'>
           <h2>Blogs</h2>
           <Togglable buttonLabel='create new blog'  ref={blogFormRef}>
             <NewBlog createBlog={createBlog} />
           </Togglable>
-
-          {blogs.sort(byLikes).map(blog =>
-            <Blog
-              key={blog.id}
-              blog={blog}
-              handleLike={handleLike}
-              handleRemove={handleRemove}
-              own={user.username===blog.user.username}
-            />
-          )}
+          <BLogList />
         </Route>
       </Switch>
 

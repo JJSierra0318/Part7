@@ -1,32 +1,40 @@
-import React, { useState } from 'react'
+import React from 'react'
 import PropTypes from 'prop-types'
+import { useParams } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { likeBlog, removeBlog } from '../reducers/blogReducer'
 
-const Blog = ({ blog, handleLike, handleRemove, own }) => {
-  const [visible, setVisible] = useState(false)
+const Blog = () => {
+  const dispatch = useDispatch()
 
-  const blogStyle = {
-    paddingTop: 10,
-    paddingLeft: 2,
-    border: 'solid',
-    borderWidth: 1,
-    marginBottom: 5
+  const id = useParams().id
+  const blog = useSelector(state => state.blogs.find(blog => blog.id === id))
+  const user = useSelector(state => state.user)
+
+  const handleLike = async () => {
+    dispatch(likeBlog(blog))
   }
 
-  const label = visible ? 'hide' : 'view'
+  const handleRemove = async () => {
+    const ok = window.confirm(`Remove blog ${blog.title} by ${blog.author}`)
+    if (ok) {
+      dispatch(removeBlog(blog))
+    }
+  }
 
   return (
-    <div style={blogStyle} className='blog'>
+    <div>
       <div>
-        <i>{blog.title}</i> by {blog.author} <button onClick={() => setVisible(!visible)}>{label}</button>
+        <h2>{blog.title} by {blog.author}</h2>
       </div>
-      {visible&&(
+      {true&&(
         <div>
           <div>{blog.url}</div>
           <div>likes {blog.likes}
             <button onClick={() => handleLike(blog.id)}>like</button>
           </div>
           <div>{blog.user.name}</div>
-          {own&&<button onClick={() => handleRemove(blog.id)}>remove</button>}
+          {blog.user.username===user.username&&<button onClick={() => handleRemove(blog.id)}>remove</button>}
         </div>
       )}
     </div>
