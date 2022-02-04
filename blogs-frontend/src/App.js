@@ -3,18 +3,24 @@ import Blog from './components/Blog'
 import Notification from './components/Notification'
 import Togglable from './components/Togglable'
 import NewBlog from './components/NewBlog'
+import Menu from './components/Menu'
+import UserList from './components/UserList'
+import User from './components/User'
 
 import loginService from './services/login'
 import storage from './utils/storage'
 import { useDispatch, useSelector } from 'react-redux'
 import { setNotification } from './reducers/notificationReducer'
 import { initializeBlogs, likeBlog, newBlog, removeBlog } from './reducers/blogReducer'
+import { userLogin, userLogout } from './reducers/userReducer'
+import { Route, Switch } from 'react-router-dom'
+import { initializeUsers } from './reducers/usersReducer'
 
 const App = () => {
   const dispatch = useDispatch()
   const notification = useSelector(state => state.notification)
   const blogs = useSelector(state => state.blogs)
-  const [user, setUser] = useState(null)
+  const user = useSelector(state => state.user)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
@@ -22,11 +28,12 @@ const App = () => {
 
   useEffect(() => {
     dispatch(initializeBlogs())
+    dispatch(initializeUsers())
   }, [dispatch])
 
   useEffect(() => {
     const user = storage.loadUser()
-    setUser(user)
+    dispatch(userLogin(user))
   }, [])
 
   const handleLogin = async (event) => {
@@ -38,7 +45,7 @@ const App = () => {
 
       setUsername('')
       setPassword('')
-      setUser(user)
+      dispatch(userLogin(user))
       dispatch(setNotification(`${user.name} welcome back!`, 'success', 5))
       storage.saveUser(user)
     } catch(exception) {
@@ -70,7 +77,7 @@ const App = () => {
   }
 
   const handleLogout = () => {
-    setUser(null)
+    dispatch(userLogout())
     storage.logoutUser()
   }
 
@@ -109,27 +116,34 @@ const App = () => {
 
   return (
     <div>
-      <h2>blogs</h2>
-
+      <Menu user={user} handleLogout={handleLogout}/>
       <Notification notification={notification} />
 
-      <p>
-        {user.name} logged in <button onClick={handleLogout}>logout</button>
-      </p>
+      <Switch>
+        <Route path='/users/:id'>
+          <User />
+        </Route>
+        <Route path='/users'>
+          <UserList />
+        </Route>
+        <Route path='/'>
+          <h2>Blogs</h2>
+          <Togglable buttonLabel='create new blog'  ref={blogFormRef}>
+            <NewBlog createBlog={createBlog} />
+          </Togglable>
 
-      <Togglable buttonLabel='create new blog'  ref={blogFormRef}>
-        <NewBlog createBlog={createBlog} />
-      </Togglable>
+          {blogs.sort(byLikes).map(blog =>
+            <Blog
+              key={blog.id}
+              blog={blog}
+              handleLike={handleLike}
+              handleRemove={handleRemove}
+              own={user.username===blog.user.username}
+            />
+          )}
+        </Route>
+      </Switch>
 
-      {blogs.sort(byLikes).map(blog =>
-        <Blog
-          key={blog.id}
-          blog={blog}
-          handleLike={handleLike}
-          handleRemove={handleRemove}
-          own={user.username===blog.user.username}
-        />
-      )}
     </div>
   )
 }
