@@ -33,7 +33,7 @@ const Blog = () => {
   return (
     <div>
       <div>
-        <h2>{blog.title} by {blog.author}</h2>
+        <h3>{blog.title} by {blog.author}</h3>
       </div>
       <div>
         <div>{blog.url}</div>

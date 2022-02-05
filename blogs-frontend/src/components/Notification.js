@@ -1,4 +1,5 @@
 import React from 'react'
+import { Alert } from 'react-bootstrap'
 import { useSelector } from 'react-redux'
 
 const Notification = () => {
@@ -9,17 +10,16 @@ const Notification = () => {
   }
 
   const style = {
-    borderStyle: 'solid',
-    borderRadius: 5,
-    padding: 10,
-    color: notification.type === 'success' ? 'green' : 'red',
-    background: 'lightgrey',
-    width: 'max-contetn'
+    width: 'max-content',
+    margin: 'auto'
   }
+  const variant = notification.type === 'success' ? 'success' : 'danger'
 
-  return <div style={style}>
-    {notification.content}
-  </div>
+  return (
+    <Alert variant={variant} style={style}>
+      {notification.content}
+    </Alert>
+  )
 }
 
 export default Notification

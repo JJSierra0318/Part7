@@ -16,6 +16,7 @@ import { initializeBlogs, newBlog } from './reducers/blogReducer'
 import { userLogin, userLogout } from './reducers/userReducer'
 import { Route, Switch } from 'react-router-dom'
 import { initializeUsers } from './reducers/usersReducer'
+import { Form, Button } from 'react-bootstrap'
 
 const App = () => {
   const dispatch = useDispatch()
@@ -70,37 +71,40 @@ const App = () => {
 
   if ( !user ) {
     return (
-      <div>
-        <h2>login to application</h2>
+      <div className='container' id='loginForm'>
+        <h2>LOGIN</h2>
 
         <Notification notification={notification} />
 
-        <form onSubmit={handleLogin}>
-          <div>
-            username
-            <input
-              id='username'
-              value={username}
-              onChange={({ target }) => setUsername(target.value)}
-            />
-          </div>
-          <div>
-            password
-            <input
-              id='password'
-              value={password}
-              type='password'
-              onChange={({ target }) => setPassword(target.value)}
-            />
-          </div>
-          <button id='login'>login</button>
-        </form>
+        <Form onSubmit={handleLogin}>
+          <Form.Group>
+            <div>
+              <Form.Label className='labelForm'>Username:</Form.Label>
+              <Form.Control
+                type='text'
+                id='username'
+                value={username}
+                onChange={({ target }) => setUsername(target.value)}
+              />
+            </div>
+            <div>
+              <Form.Label className='labelForm'>Password:</Form.Label>
+              <Form.Control
+                type='password'
+                id='password'
+                value={password}
+                onChange={({ target }) => setPassword(target.value)}
+              />
+            </div>
+            <Button type='submit' id='login'>login</Button>
+          </Form.Group>
+        </Form>
       </div>
     )
   }
 
   return (
-    <div>
+    <div className='container'>
       <Menu user={user} handleLogout={handleLogout}/>
       <Notification notification={notification} />
 
